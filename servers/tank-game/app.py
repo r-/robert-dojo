@@ -12,7 +12,7 @@ lock = threading.Lock()
 def command():
     """
     Unified command handler for game server interactions.
-    Handles commands like /login, /disconnect, /shoot, /game_state, /reset.
+    Handles commands like /login, /disconnect, /activate, /game_state, /reset.
     """
     if request.method == 'OPTIONS':
         # Handle CORS preflight
@@ -71,28 +71,36 @@ Have fun!
             del players[player_id]
             return jsonify({"status": "success", "message": f"Player {player_id} disconnected."})
 
-        elif cmd == "/shoot":
-            if len(args) != 2:
-                return jsonify({"status": "error", "message": "Usage: /shoot <shooter_id> <target_id>"}), 400
+        elif cmd == "/activate":
+            if len(args) != 1:
+                return jsonify({"status": "error", "message": "Usage: /activate <target_id>"}), 400
             
-            shooter_id, target_id = args
-            if shooter_id not in players or target_id not in players:
-                return jsonify({"status": "error", "message": "Shooter or target not found."}), 404
+            target_id = args[0]
+            if target_id not in players:
+                return jsonify({"status": "error", "message": f"Target '{target_id}' not found."}), 404
             
             if players[target_id]['health'] > 0:
                 players[target_id]['health'] -= 1
                 if players[target_id]['health'] == 0:
-                    players[shooter_id]['score'] += 1
                     return jsonify({
                         "status": "success",
-                        "message": f"Player {target_id} eliminated by {shooter_id}.",
-                        "players": list(players.values())
+                        "message": f"Player {target_id} has been eliminated!",
+                        "player": {
+                            "id": target_id,
+                            "health": players[target_id]['health']
+                        }
                     })
-            return jsonify({
-                "status": "success",
-                "message": f"Player {shooter_id} shot {target_id}.",
-                "players": list(players.values())
-            })
+                else:
+                    return jsonify({
+                        "status": "success",
+                        "message": f"Player {target_id} hit! Remaining health: {players[target_id]['health']}.",
+                        "player": {
+                            "id": target_id,
+                            "health": players[target_id]['health']
+                        }
+                    })
+            else:
+                return jsonify({"status": "error", "message": f"Player {target_id} is already eliminated."})
 
         elif cmd == "/game_state":
             game_state = [
@@ -110,7 +118,7 @@ Have fun!
 Available Commands:
   /login <server_ip> <player_id> - Log in to the game.
   /disconnect <player_id> - Disconnect from the game.
-  /shoot <shooter_id> <target_id> - Shoot another player.
+  /activate <target_id> - Activate (attack) a target.
   /game_state - View the current game state.
   /reset - Reset the game state.
   /help - Display this help text.
