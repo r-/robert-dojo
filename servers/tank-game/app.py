@@ -128,13 +128,5 @@ Available Commands:
         else:
             return jsonify({"status": "error", "message": f"Unknown command: {cmd}. Use /help to see available commands."})
 
-@app.route('/api/get_hp')
-def get_hp():
-    # Replace with actual logic to calculate HP
-    current_hp = 75
-    max_hp = 100
-    return jsonify({"currentHP": current_hp, "maxHP": max_hp})
-
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001)
