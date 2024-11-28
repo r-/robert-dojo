@@ -48,7 +48,7 @@ def command():
                 "id": player_id,
                 "ip": player_ip,
                 "score": 0,
-                "health": 4
+                "health": 10
             }
             welcome_message = f"""
 Welcome to the Dojo, Player {player_id}!
