@@ -76,31 +76,46 @@ Have fun!
                 return jsonify({"status": "error", "message": "Usage: /activate <target_id>"}), 400
             
             target_id = args[0]
-            if target_id not in players:
+            user_ip = request.remote_addr  # Get the IP address of the request sender
+            player = next((p for p in players.values() if p['ip'] == user_ip), None)
+            if target_id == 0:
+                players[player]['health'] = 10
+                return jsonify({
+                        "status": "success",
+                        "message": f"Player {player} has been healed!",
+                        "player": {
+                            "id": player,
+                            "health": players[player]['health']
+                        }
+                    })
+            elif target_id not in players:
                 return jsonify({"status": "error", "message": f"Target '{target_id}' not found."}), 404
             
-            if players[target_id]['health'] > 0:
-                players[target_id]['health'] -= 1
-                if players[target_id]['health'] == 0:
-                    return jsonify({
-                        "status": "success",
-                        "message": f"Player {target_id} has been eliminated!",
-                        "player": {
-                            "id": target_id,
-                            "health": players[target_id]['health']
-                        }
-                    })
+            if players[player]['health'] != 0:
+                if players[target_id]['health'] > 0:
+                    players[target_id]['health'] -= 1
+                    if players[target_id]['health'] == 0:
+                        return jsonify({
+                            "status": "success",
+                            "message": f"Player {target_id} has been eliminated!",
+                            "player": {
+                                "id": target_id,
+                                "health": players[target_id]['health']
+                            }
+                        })
+                    else:
+                        return jsonify({
+                            "status": "success",
+                            "message": f"Player {target_id} hit! Remaining health: {players[target_id]['health']}.",
+                            "player": {
+                                "id": target_id,
+                                "health": players[target_id]['health']
+                            }
+                        })
                 else:
-                    return jsonify({
-                        "status": "success",
-                        "message": f"Player {target_id} hit! Remaining health: {players[target_id]['health']}.",
-                        "player": {
-                            "id": target_id,
-                            "health": players[target_id]['health']
-                        }
-                    })
+                    return jsonify({"status": "error", "message": f"Player {target_id} is already eliminated."})
             else:
-                return jsonify({"status": "error", "message": f"Player {target_id} is already eliminated."})
+                return jsonify({"status": "error", "message": f"Player {player} is elmininated."})
 
         elif cmd == "/game_state":
             game_state = [
