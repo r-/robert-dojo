@@ -125,6 +125,26 @@ Available Commands:
 """
             return jsonify({"status": "success", "message": help_text.strip()})
 
+        elif cmd == "/hp":
+            user_ip = request.remote_addr  # Get the IP address of the request sender
+            player = next((p for p in players.values() if p['ip'] == user_ip), None)
+
+            if player:  # If the player's IP matches
+                return jsonify({
+                    "status": "success",
+                    "message": f"Player {player['id']} has {player['health']} health points.",
+                    "player": {
+                        "id": player['id'],
+                        "health": player['health']
+                    }
+                })
+            else:  # No matching player
+                return jsonify({
+                    "status": "error",
+                    "message": f"No player found for IP address {user_ip}. Are you logged in?"
+                }), 404
+
+
         else:
             return jsonify({"status": "error", "message": f"Unknown command: {cmd}. Use /help to see available commands."})
 
