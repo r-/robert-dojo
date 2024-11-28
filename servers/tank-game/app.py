@@ -78,20 +78,20 @@ Have fun!
             target_id = args[0]
             user_ip = request.remote_addr  # Get the IP address of the request sender
             player = next((p for p in players.values() if p['ip'] == user_ip), None)
-            if target_id == 0:
-                players[player]['health'] = 10
+            if target_id == "0":
+                player['health'] = 10
                 return jsonify({
                         "status": "success",
                         "message": f"Player {player} has been healed!",
                         "player": {
                             "id": player,
-                            "health": players[player]['health']
+                            "health": player['health']
                         }
                     })
             elif target_id not in players:
                 return jsonify({"status": "error", "message": f"Target '{target_id}' not found."}), 404
             
-            if players[player]['health'] != 0:
+            if player['health'] != 0:
                 if players[target_id]['health'] > 0:
                     players[target_id]['health'] -= 1
                     if players[target_id]['health'] == 0:
