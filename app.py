@@ -1,19 +1,21 @@
 import socket
-from flask import Flask, jsonify, request, render_template, send_file
+from flask import Flask, jsonify, request, render_template, send_file, Blueprint
 from flask_cors import CORS
 from PIL import Image
 from pyzbar.pyzbar import decode
 import threading
 import numpy as np
 import qrcode
-from io import BytesIO
 import requests
 import hashlib
 import cv2
 import cv2.aruco as aruco
+from tools.QR_Codes import qrcode_bp
 
 app = Flask(__name__)
 CORS(app)
+
+app.register_blueprint(qrcode_bp)
 
 players = {}
 lock = threading.Lock()
@@ -53,78 +55,6 @@ def update_health(player_id):
         return jsonify({"status": "error", "message": f"Error communicating with client: {str(e)}"}), 500
 
 ARUCO_DICT = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
-
-@app.route('/decode_qr_code', methods=['POST'])
-def decode_qr_code():
-    """Receive a QR code image, decode it, and return the player type."""
-    try:
-        # Check if the request contains a file
-        if 'file' not in request.files:
-            return jsonify({"status": "error", "message": "No file part."}), 400
-        
-        file = request.files['file']
-        
-        # If no file is selected
-        if file.filename == '':
-            return jsonify({"status": "error", "message": "No selected file."}), 400
-        
-        # Open the image and decode the QR code
-        img = Image.open(file.stream)
-        decoded_objects = decode(img)
-
-        if not decoded_objects:
-            return jsonify({"status": "error", "message": "No QR code found in the image."}), 400
-
-        # Get the player ID from the QR code (assuming the QR code contains player_id as URL)
-        player_id = decoded_objects[0].data.decode('utf-8').split('/')[-1]  # Extract player_id from URL
-        
-        # Check if the player exists
-        if player_id not in players:
-            return jsonify({"status": "error", "message": f"Player '{player_id}' not found."}), 404
-        
-        # Return the player type
-        player_type = players[player_id]["type"]
-        return jsonify({"status": "success", "player_id": player_id, "player_type": player_type})
-
-    except Exception as e:
-        # Handle errors
-        app.logger.error(f"Error decoding QR code: {e}")
-        return jsonify({"status": "error", "message": "Failed to decode QR code."}), 500
-
-
-@app.route('/get_qr_code/<player_id>', methods=['GET'])
-def get_aruco_marker(player_id):
-    global players
-    """Generate and return an ArUco marker for the given player ID."""
-    try:
-        if player_id not in players:
-            app.logger.error(f"Player '{player_id}' not found.")
-            return jsonify({"status": "error", "message": f"Player '{player_id}' not found."}), 404
-
-        if not player_id.isdigit(): 
-            marker_id = int(hashlib.md5(player_id.encode('utf-8')).hexdigest(), 16) % 50
-        else:
-            marker_id = int(player_id) % 50  # assuming DICT_4X4_50 (valid IDs: 0-49)
-
-        marker_size = 300  # Size of the marker image in pixels
-
-        # Create the ArUco marker using cv2.aruco and manual image creation
-        marker_img = np.ones((marker_size, marker_size), dtype=np.uint8) * 255  # white background
-        cv2.aruco.generateImageMarker(ARUCO_DICT, marker_id, marker_size, marker_img)  # Draw the marker
-
-        # Encode the image to PNG in memory
-        is_success, buffer = cv2.imencode(".png", marker_img)
-        if not is_success:
-            raise ValueError("Failed to encode ArUco marker image.")
-
-        img_io = BytesIO(buffer.tobytes())
-
-        # Return the image
-        return send_file(img_io, mimetype='image/png')
-
-    except Exception as e:
-        app.logger.error(f"Error generating ArUco marker for player {player_id}: {e}")
-        return jsonify({"status": "error", "message": "Failed to generate ArUco marker."}), 500
 
 @app.route('/')
 def index():
