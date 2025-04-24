@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from flask import Flask, send_file, jsonify, Blueprint
+from flask import Flask, send_file, jsonify, Blueprint, request
 import cv2.aruco as aruco
 from io import BytesIO
 

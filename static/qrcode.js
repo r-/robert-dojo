@@ -114,7 +114,6 @@ function updateGameData() {
                 Object.values(data.players).forEach(player => {
                     const li = document.createElement('li');
                     li.innerHTML = `${player.id} - Score: ${player.score} | Health: ${player.health}
-                                    <button onclick="generateQRCode('${player.id}')">Generate QR Code</button>
                                     <button onclick="kickPlayer('${player.id}')">Kick Player</button>`;
                     playersList.appendChild(li);
                 });
