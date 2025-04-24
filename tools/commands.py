@@ -10,8 +10,8 @@ app = Flask(__name__)
 
 command_bp = Blueprint('command_bp', __name__)
 
-players = app.player
-logs = app.logs
+#players = app.player
+#logs = app.logs
 
 # Server-side update_health function
 def update_health(player_id):
