@@ -153,16 +153,25 @@ def command():
             return jsonify({"status": "error", "message": "Usage: attack <player_id>"}), 400
            
         target_id = args[0]
+        attacker_ip = args[1]
+        
+        attacking_player_id = None
+        for player_id, player_info in players.items():
+            if player_info["ip"] == attacker_ip:
+                attacking_player_id = player_id
+                break
 
-        
-        
+        if not attacking_player_id:
+            print(f"Error: No player found with IP {attacker_ip}")  # Debugging
+            return jsonify({"status": "error", "message": f"Player with IP {attacker_ip} not found."}), 404
+    
         if target_id not in players:
             return jsonify({"status": "error", "message": f"Player '{target_id}' not found."}), 404
 
          # Reduce health
         if players[target_id]["health"] > 0:
             players[target_id]["health"] -= 1
-            logs.append(f"Player {target_id} was attacked! Remaining health: {players[target_id]['health']}")
+            logs.append(f"Player {target_id} was attacked by {attacking_player_id}! Remaining health: {players[target_id]['health']}")
 
             # Check if player is eliminated
             if players[target_id]["health"] <= 0:

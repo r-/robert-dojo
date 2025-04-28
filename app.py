@@ -52,7 +52,7 @@ def index():
     """Render the home page where players can view the game state."""
     server_ip = get_server_ip()
     print(server_ip)
-    #simulate_login()
+    simulate_login()
     return render_template('index.html', players=players, logs=logs, server_ip=server_ip)
 
 def simulate_login():
