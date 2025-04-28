@@ -34,14 +34,11 @@ def update_health(player_id):
         response = requests.post(client_url, json=data)
         if response.status_code == 200:
             print(f"Successfully updated health for player {player_id} to {health}.")
-            command_bp.logger.info(f"Successfully updated health for player {player_id} to {health}.")
             return jsonify({"status": "success", "message": f"Health of player {player_id} updated successfully."})
         else:
             print(f"Failed to update health for player {player_id}: {response.text}")
-            command_bp.logger.error(f"Failed to update health for player {player_id}: {response.text}")
             return jsonify({"status": "error", "message": "Failed to update health on client."}), 500
     except requests.exceptions.RequestException as e:
-        command_bp.logger.error(f"Error updating health for player {player_id}: {e}")
         return jsonify({"status": "error", "message": f"Error communicating with client: {str(e)}"}), 500
 
 @command_bp.route('/command', methods=['OPTIONS', 'POST'])
