@@ -86,7 +86,10 @@ def command():
             "id": player_id,
             "ip": player_ip,
             "score": 0,
-            "health": 10
+            "health": 4,
+            "team": None,
+            "deaths": 0,
+            "flag": False
         }
 
         print(f"Adding new player...")
@@ -140,12 +143,16 @@ def command():
         print(f"Received attack command. Raw input: {command_data}")  # Debugging
         print(f"Command split into parts: {parts}")  # Debugging
 
-        if len(args) != 1:
+        print(args) #Debuging
+
+        if len(args) != 2:
             print("Error: attack command requires exactly 1 argument")  # Debugging
             return jsonify({"status": "error", "message": "Usage: attack <player_id>"}), 400
            
         target_id = args[0]
 
+        
+        
         if target_id not in players:
             return jsonify({"status": "error", "message": f"Player '{target_id}' not found."}), 404
 
@@ -158,7 +165,7 @@ def command():
             if players[target_id]["health"] <= 0:
                 logs.append(f"Player {target_id} has been eliminated!")
                 #del players[target_id]  # Remove the player from the game
-                players[target_id]["health"] = 10 # temp - reset health
+                #players[target_id]["health"] = 10 # temp - reset health
 
                 update_health(target_id)
                 return jsonify({"status": "success", "message": f"Player {target_id} has been eliminated!"})

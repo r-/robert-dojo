@@ -27,6 +27,11 @@ players = {}
 app.config['PLAYERS'] = players
 logs = []
 app.config['LOGS'] = logs
+score = {
+    "0": 0,
+    "1": 0
+}
+
 
 def get_server_ip():
     """Get the server's public IP address."""
@@ -37,7 +42,8 @@ def get_game_data():
     """Provide updated logs and connected players."""
     return jsonify({
         'players': players,
-        'logs': logs
+        'logs': logs,
+        'score': score
     })
 
 @app.route('/')
@@ -46,7 +52,7 @@ def index():
     """Render the home page where players can view the game state."""
     server_ip = get_server_ip()
     print(server_ip)
-    simulate_login()
+    #simulate_login()
     return render_template('index.html', players=players, logs=logs, server_ip=server_ip)
 
 def simulate_login():
