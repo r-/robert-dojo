@@ -63,6 +63,9 @@ def command():
 
     command = command_data['command'].strip()
     parts = command.split()
+    for part in parts:
+        print(part)
+    
     if not parts:
         return jsonify({"status": "error", "message": "Invalid command."}), 400
 

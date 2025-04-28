@@ -153,9 +153,6 @@ button:active {
 
 #server-ip-container {
     display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-    justify-content: center;
 }
 
 #server-ip-container button {

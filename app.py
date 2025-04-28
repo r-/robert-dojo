@@ -52,7 +52,7 @@ def index():
 def simulate_login():
     global server_ip
     for x in range(5):
-        login_data = {"command": f"/login 127.0.0.1 {x}"}
+        login_data = {"command": f"/login 127.0.0.{x} {x}"}
         print(login_data)
         entire_string = f"http://{server_ip}:5001/command"
         print(entire_string)
