@@ -2,13 +2,12 @@ import cv2
 import numpy as np
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from flask import Flask, send_file, jsonify, Blueprint, request
+from flask import Flask, send_file, jsonify, Blueprint, request, current_app
 import cv2.aruco as aruco
 from io import BytesIO
 
 qrcode_bp = Blueprint('qrcode_bp', __name__)
 
-app = Flask(__name__)
 
 ARUCO_DICT = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
 
@@ -76,11 +75,13 @@ def get_aruco_markers():
         return send_file(img_io, mimetype='image/png')
 
     except Exception as e:
-        app.logger.error(f"Error generating ArUco markers: {e}")
+        qrcode_bp.logger.error(f"Error generating ArUco markers: {e}")
         return jsonify({"status": "error", "message": "Failed to generate ArUco markers."}), 500
     
 @qrcode_bp.route('/decode_qr_code', methods=['POST'])
 def decode_qr_code():
+    players = current_app.config['PLAYERS']
+
     """Receive a QR code image, decode it, and return the player type."""
     try:
         # Check if the request contains a file
@@ -113,16 +114,16 @@ def decode_qr_code():
 
     except Exception as e:
         # Handle errors
-        app.logger.error(f"Error decoding QR code: {e}")
+        qrcode_bp.logger.error(f"Error decoding QR code: {e}")
         return jsonify({"status": "error", "message": "Failed to decode QR code."}), 500
     
-@app.route('/get_qr_code/<player_id>', methods=['GET'])
+@qrcode_bp.route('/get_qr_code/<player_id>', methods=['GET'])
 def get_aruco_marker(player_id):
-    global players
+    players = current_app.config['PLAYERS']
     """Generate and return an ArUco marker for the given player ID."""
     try:
         if player_id not in players:
-            app.logger.error(f"Player '{player_id}' not found.")
+            qrcode_bp.logger.error(f"Player '{player_id}' not found.")
             return jsonify({"status": "error", "message": f"Player '{player_id}' not found."}), 404
 
         if not player_id.isdigit(): 
@@ -147,5 +148,5 @@ def get_aruco_marker(player_id):
         return send_file(img_io, mimetype='image/png')
 
     except Exception as e:
-        app.logger.error(f"Error generating ArUco marker for player {player_id}: {e}")
+        qrcode_bp.logger.error(f"Error generating ArUco marker for player {player_id}: {e}")
         return jsonify({"status": "error", "message": "Failed to generate ArUco marker."}), 500

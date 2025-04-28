@@ -6,7 +6,6 @@ from pyzbar.pyzbar import decode
 import threading
 import requests
 
-app = Flask(__name__)
 
 command_bp = Blueprint('command_bp', __name__)
 
@@ -14,6 +13,8 @@ command_bp = Blueprint('command_bp', __name__)
 # Server-side update_health function
 def update_health(player_id):
     """Update the health of a player by notifying the client via set_health."""
+    players = current_app.config['PLAYERS']
+
     if player_id not in players:
         command_bp.logger.error(f"Player '{player_id}' not found.")
         return jsonify({"status": "error", "message": f"Player '{player_id}' not found."}), 404

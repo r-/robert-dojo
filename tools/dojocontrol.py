@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, render_template, send_file, Blueprint
+from flask import Flask, jsonify, request, render_template, send_file, Blueprint, current_app
 import threading
 lock = threading.Lock()
 
@@ -6,6 +6,9 @@ dojocontrol_bp = Blueprint('dojocontrol_bp', __name__)
 
 @dojocontrol_bp.route('/kick', methods=['POST'])
 def kick_player():
+    players = current_app.config['PLAYERS']
+    logs = current_app.config['LOGS']
+
     player_id = request.form.get('player_id')
 
     if not player_id:

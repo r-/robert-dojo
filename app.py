@@ -12,12 +12,12 @@ CORS(app)
 from tools.QR_Codes import qrcode_bp
 #from tools.test import test_bp
 from tools.commands import command_bp
-#from tools.dojocontrol import dojocontrol_bp
+from tools.dojocontrol import dojocontrol_bp
 
 app.register_blueprint(qrcode_bp)
 #app.register_blueprint(test_bp)
 app.register_blueprint(command_bp)
-#app.register_blueprint(dojocontrol_bp)
+app.register_blueprint(dojocontrol_bp)
 
 
 lock = threading.Lock()
