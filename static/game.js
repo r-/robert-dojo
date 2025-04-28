@@ -1,30 +1,31 @@
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Handle form submission via AJAX
-    const kickForms = document.querySelectorAll('form[action="/kick"]');
+async function updateGameData() {
+    try {
+        const response = await fetch('/get_game_data');
+        const data = await response.json();
 
-    kickForms.forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent the default form submission
+        const playersList = document.getElementById('players-list');
+        const logsContainer = document.getElementById('logs-container');
 
-            const playerId = form.querySelector('input[name="player_id"]').value;
+        // Update Players List
+        playersList.innerHTML = data.players && Object.keys(data.players).length
+            ? Object.values(data.players).map(createPlayerItem).join('')
+            : '<li class="no-players">No players are currently connected.</li>';
 
-            fetch('/kick', {
-                method: 'POST',
-                body: new URLSearchParams({ 'player_id': playerId }),
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        alert(data.message); // Show a success message
-                        // Remove the player from the UI
-                        form.closest('li').remove();
-                    } else {
-                        alert(data.message); // Show an error message
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        });
-    });
-});
+        // Update Logs
+        logsContainer.innerHTML = data.logs && data.logs.length
+            ? data.logs.map(createLogEntry).join('')
+            : '<p class="no-logs">No logs available.</p>';
+
+    } catch (error) {
+        console.error('Failed to update game data:', error);
+        document.getElementById('logs-container').innerHTML = '<p class="error">Error loading game data.</p>';
+    }
+}
+
+// Fetch and update the game data every second
+setInterval(updateGameData, 1000);
+
+function createLogEntry(log) {
+    return `<p class="log-entry">${log}</p>`;
+}

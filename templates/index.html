@@ -6,16 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Roberts Dojo</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='players.css') }}">
 </head>
 
 <body>
     <h1>Welcome to the Dojo!</h1>
-
     <h2>Connected Players</h2>
-    <ul id="players-list">
-        <!-- Connected players will be dynamically added here -->
-    </ul>
-
+    <div class="player-table">
+        <div class="table-header">
+            <div>ID</div>
+            <div>IP</div>
+            <div>Health</div>
+            <div>Kills</div>
+            <div>Deaths</div>
+            <div>Team</div>
+            <div>Actions</div>
+        </div>
+        <ul id="players-list" class="table-body">
+            <!-- players will be added here dynamically -->
+        </ul>
+    </div>
     <h2>Server Logs</h2>
     <pre id="logs-container">
         <!-- Logs will be dynamically added here -->
@@ -26,7 +36,12 @@
         <input type="text" value="{{ server_ip }}:5001" readonly id="server-ip">
         <button onclick="copyToClipboard()">Copy IP</button>
     </div>
-    <button onclick="generateQRCode()">Generate Aruco QR-Codes</button>
+
+    <h2>Actions</h2>
+    <div id="Actions">
+        <button onclick="generateQRCode()">Generate Aruco QR-Codes</button>
+        <button onclick="debugAttack()">Attack random player</button>
+    </div>
 
     <!-- Modal for displaying QR code -->
     <div id="qr-modal" class="modal">
@@ -41,8 +56,10 @@
         </div>
     </div>
     <script src="{{ url_for('static', filename='qrcode.js') }}"></script>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='game.js') }}"></script>
     <script src="{{ url_for('static', filename='players.js') }}"></script>
+    <script src="{{ url_for('static', filename='server-ip.js') }}"></script>
+    <script src="{{ url_for('static', filename='debug_commands.js') }}"></script>
 </body>
 
 </html>
