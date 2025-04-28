@@ -79,7 +79,7 @@ def get_aruco_markers():
         app.logger.error(f"Error generating ArUco markers: {e}")
         return jsonify({"status": "error", "message": "Failed to generate ArUco markers."}), 500
     
-@app.route('/decode_qr_code', methods=['POST'])
+@qrcode_bp.route('/decode_qr_code', methods=['POST'])
 def decode_qr_code():
     """Receive a QR code image, decode it, and return the player type."""
     try:

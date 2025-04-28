@@ -10,6 +10,7 @@ app = Flask(__name__)
 
 command_bp = Blueprint('command_bp', __name__)
 
+
 #players = app.player
 #logs = app.logs
 
@@ -47,7 +48,10 @@ def update_health(player_id):
 
 @command_bp.route('/command', methods=['OPTIONS', 'POST'])
 def command():
-    global players
+    from app import players
+    from app import logs
+    from app import new_players
+
     print("Command recieved")
     if request.method == 'OPTIONS':
         response = jsonify({"status": "success", "message": "CORS preflight successful."})
@@ -68,104 +72,104 @@ def command():
     cmd = parts[0].lower()
     args = parts[1:]
 
-    with app.lock:
-        if cmd == "/login":
-            print("Login attempted.")
-            if len(args) != 2:
-                return jsonify({"status": "error", "message": "Usage: /login <server_ip> <player_id>"}), 400
+#    with lock:
+    if cmd == "/login":
+        print("Login attempted.")
+        if len(args) != 2:
+            return jsonify({"status": "error", "message": "Usage: /login <server_ip> <player_id>"}), 400
             
-            player_ip = args[0]
-            player_id = args[1]
-            print(f"Login ID:{player_id}, IP: {player_ip}")
+        player_ip = args[0]
+        player_id = args[1]
+        print(f"Login ID:{player_id}, IP: {player_ip}")
 
-            if player_id in players:
-                return jsonify({"status": "error", "message": f"Player ID '{player_id}' already connected."}), 400
+        if player_id in players:
+            return jsonify({"status": "error", "message": f"Player ID '{player_id}' already connected."}), 400
             
-            players[player_id] = {
-                "id": player_id,
-                "ip": player_ip,
-                "score": 0,
-                "health": 10
-            }
-            print(f"Adding new player...")
+        players[player_id] = {
+            "id": player_id,
+            "ip": player_ip,
+            "score": 0,
+            "health": 10
+        }
+        new_players(players)
 
+        print(f"Adding new player...")
+        # Log the login event
+        logs.append(f"Player {player_id} logged in from IP {player_ip}")
 
-            # Log the login event
-            logs.append(f"Player {player_id} logged in from IP {player_ip}")
+        return jsonify({"status": "success", "message": f"Welcome to the Dojo, Player {player_id}!"})
 
-            return jsonify({"status": "success", "message": f"Welcome to the Dojo, Player {player_id}!"})
-
-        elif cmd == "/disconnect":
-            if len(args) != 1:
-                return jsonify({"status": "error", "message": "Usage: /disconnect <player_id>"}), 400
+    elif cmd == "/disconnect":
+        if len(args) != 1:
+            return jsonify({"status": "error", "message": "Usage: /disconnect <player_id>"}), 400
             
-            player_id = args[0]
-            if player_id not in players:
-                return jsonify({"status": "error", "message": f"Player '{player_id}' not found."}), 404
+        player_id = args[0]
+        if player_id not in players:
+            return jsonify({"status": "error", "message": f"Player '{player_id}' not found."}), 404
             
-            del players[player_id]
+        del players[player_id]
 
-            # Log the disconnect event
-            logs.append(f"Player {player_id} disconnected.")
+        # Log the disconnect event
+        logs.append(f"Player {player_id} disconnected.")
 
-            return jsonify({"status": "success", "message": f"Player {player_id} disconnected."})
+        return jsonify({"status": "success", "message": f"Player {player_id} disconnected."})
 
-        elif cmd == "/game_state":
-            game_state = [
-                f"Player {p['id']}: IP={p['ip']}, Score={p['score']}, Health={p['health']}"
-                for p in players.values()
-            ]
-            return jsonify({"status": "success", "message": "\n".join(game_state) if game_state else "No players connected."})
+    elif cmd == "/game_state":
+        game_state = [
+            f"Player {p['id']}: IP={p['ip']}, Score={p['score']}, Health={p['health']}"
+            for p in players.values()
+        ]
+        return jsonify({"status": "success", "message": "\n".join(game_state) if game_state else "No players connected."})
 
-        elif cmd == "heal":
-            if len(args) != 1:
-                return jsonify({"status": "error", "message": "Usage: heal <player_id>"}), 400
+    elif cmd == "heal":
+        if len(args) != 1:
+            return jsonify({"status": "error", "message": "Usage: heal <player_id>"}), 400
 
-            target_id = args[0]
+        target_id = args[0]
 
-            if target_id not in players:
-                return jsonify({"status": "error", "message": f"Player '{target_id}' not found."}), 404
+        if target_id not in players:
+            return jsonify({"status": "error", "message": f"Player '{target_id}' not found."}), 404
 
-            # Heal the player (max 10 HP)
-            if players[target_id]["health"] < 10:
-                players[target_id]["health"] += 1
-                logs.append(f"Player {target_id} was healed! Current health: {players[target_id]['health']}")
+        # Heal the player (max 10 HP)
+        if players[target_id]["health"] < 10:
+            players[target_id]["health"] += 1
+            logs.append(f"Player {target_id} was healed! Current health: {players[target_id]['health']}")
 
-                return jsonify({"status": "success", "message": f"Player {target_id} healed! Current health: {players[target_id]['health']}"})
+            return jsonify({"status": "success", "message": f"Player {target_id} healed! Current health: {players[target_id]['health']}"})
 
-            else:
-                return jsonify({"status": "error", "message": f"Player {target_id} is already at full health (10 HP)."})
-
-        elif cmd == "attack":
-            print(f"Received attack command. Raw input: {command_data}")  # Debugging
-            print(f"Command split into parts: {parts}")  # Debugging
-
-            if len(args) != 1:
-                print("Error: attack command requires exactly 1 argument")  # Debugging
-                return jsonify({"status": "error", "message": "Usage: attack <player_id>"}), 400
-           
-            target_id = args[0]
-
-            if target_id not in players:
-                return jsonify({"status": "error", "message": f"Player '{target_id}' not found."}), 404
-
-            # Reduce health
-            if players[target_id]["health"] > 0:
-                players[target_id]["health"] -= 1
-                logs.append(f"Player {target_id} was attacked! Remaining health: {players[target_id]['health']}")
-
-                # Check if player is eliminated
-                if players[target_id]["health"] <= 0:
-                    logs.append(f"Player {target_id} has been eliminated!")
-                    #del players[target_id]  # Remove the player from the game
-                    players[target_id]["health"] = 10 # temp - reset health
-
-                    update_health(target_id)
-                    return jsonify({"status": "success", "message": f"Player {target_id} has been eliminated!"})
-                update_health(target_id)
-                return jsonify({"status": "success", "message": f"Player {target_id} attacked! Remaining health: {players[target_id]['health']}"})
-
-            else:
-                return jsonify({"status": "error", "message": f"Player {target_id} has already been eliminated."})
         else:
-            return jsonify({"status": "error", "message": f"Unknown command: {cmd}. Use /help to see available commands."})
+            return jsonify({"status": "error", "message": f"Player {target_id} is already at full health (10 HP)."})
+
+    elif cmd == "attack":
+        print(f"Received attack command. Raw input: {command_data}")  # Debugging
+        print(f"Command split into parts: {parts}")  # Debugging
+
+        if len(args) != 1:
+            print("Error: attack command requires exactly 1 argument")  # Debugging
+            return jsonify({"status": "error", "message": "Usage: attack <player_id>"}), 400
+           
+        target_id = args[0]
+
+        if target_id not in players:
+            return jsonify({"status": "error", "message": f"Player '{target_id}' not found."}), 404
+
+         # Reduce health
+        if players[target_id]["health"] > 0:
+            players[target_id]["health"] -= 1
+            logs.append(f"Player {target_id} was attacked! Remaining health: {players[target_id]['health']}")
+
+            # Check if player is eliminated
+            if players[target_id]["health"] <= 0:
+                logs.append(f"Player {target_id} has been eliminated!")
+                #del players[target_id]  # Remove the player from the game
+                players[target_id]["health"] = 10 # temp - reset health
+
+                update_health(target_id)
+                return jsonify({"status": "success", "message": f"Player {target_id} has been eliminated!"})
+            update_health(target_id)
+            return jsonify({"status": "success", "message": f"Player {target_id} attacked! Remaining health: {players[target_id]['health']}"})
+
+        else:
+            return jsonify({"status": "error", "message": f"Player {target_id} has already been eliminated."})
+    else:
+        return jsonify({"status": "error", "message": f"Unknown command: {cmd}. Use /help to see available commands."})

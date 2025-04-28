@@ -29,9 +29,19 @@ def get_server_ip():
     """Get the server's public IP address."""
     return socket.gethostbyname(socket.gethostname())
 
+def new_players(newPlayers):
+    global players
+    players = newPlayers
+    #print("setting new players" + newPlayers)
+
 @app.route('/get_game_data', methods=['GET'])
 def get_game_data():
     """Provide updated logs and connected players."""
+    global players
+    global logs
+
+#    print("getting players: " + players)
+
     return jsonify({
         'players': players,
         'logs': logs
@@ -54,10 +64,10 @@ def simulate_login():
         entire_string = f"http://{server_ip}:5001/command"
         print(entire_string)
         response = requests.post(entire_string, json=login_data)
-        if response.status_code == 200:
-            return jsonify({"status": "success", "message": f"Logged in successfully as Player {player_id} to {connected_server_address}."})
-        else:
-            return jsonify({"status": "error", "message": "Failed to connect to the server."}), 500
+        #if response.status_code == 200:
+        #    return jsonify({"status": "success", "message": f"Logged in successfully as Player {x} to 127.0.0.1."})
+        #else:
+        #    return jsonify({"status": "error", "message": "Failed to connect to the server."}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001)
