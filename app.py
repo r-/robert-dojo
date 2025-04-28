@@ -19,29 +19,22 @@ app.register_blueprint(qrcode_bp)
 app.register_blueprint(command_bp)
 #app.register_blueprint(dojocontrol_bp)
 
-players = {}
+
 lock = threading.Lock()
 server_ip = ""
 
+players = {}
+app.config['PLAYERS'] = players
 logs = []
+app.config['LOGS'] = logs
 
 def get_server_ip():
     """Get the server's public IP address."""
     return socket.gethostbyname(socket.gethostname())
 
-def new_players(newPlayers):
-    global players
-    players = newPlayers
-    #print("setting new players" + newPlayers)
-
 @app.route('/get_game_data', methods=['GET'])
 def get_game_data():
     """Provide updated logs and connected players."""
-    global players
-    global logs
-
-#    print("getting players: " + players)
-
     return jsonify({
         'players': players,
         'logs': logs

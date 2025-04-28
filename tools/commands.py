@@ -1,4 +1,4 @@
-from flask import Flask, request, send_file, jsonify, Blueprint
+from flask import Flask, request, send_file, jsonify, Blueprint, current_app
 import socket
 from flask_cors import CORS
 from PIL import Image
@@ -10,9 +10,6 @@ app = Flask(__name__)
 
 command_bp = Blueprint('command_bp', __name__)
 
-
-#players = app.player
-#logs = app.logs
 
 # Server-side update_health function
 def update_health(player_id):
@@ -48,9 +45,8 @@ def update_health(player_id):
 
 @command_bp.route('/command', methods=['OPTIONS', 'POST'])
 def command():
-    from app import players
-    from app import logs
-    from app import new_players
+    players = current_app.config['PLAYERS']
+    logs = current_app.config['LOGS']
 
     print("Command recieved")
     if request.method == 'OPTIONS':
@@ -91,7 +87,6 @@ def command():
             "score": 0,
             "health": 10
         }
-        new_players(players)
 
         print(f"Adding new player...")
         # Log the login event
