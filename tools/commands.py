@@ -186,5 +186,27 @@ def command():
 
         else:
             return jsonify({"status": "error", "message": f"Player {target_id} has already been eliminated."})
+    elif cmd == "take_flag":
+        if len(args) != 1:
+            print("Error: give_flag command requires exactly 1 argument")  # Debugging
+            return jsonify({"status": "error", "message": "Usage: give_flag <player_id>"}), 400
+
+        target_id = args[0]
+
+        # Check if player exists
+        if target_id not in players:
+            return jsonify({"status": "error", "message": f"Player '{target_id}' not found."}), 404
+
+        # Check if the player already has the flag
+        if players[target_id].get("flag", False):
+            return jsonify({"status": "error", "message": f"Player '{target_id}' already has the flag."}), 400
+
+        # Give the flag to the player
+        players[target_id]["flag"] = True  # Assuming you set a flag attribute for the player
+        logs.append(f"Player {target_id} has taken the flag!")
+
+        # Return success message
+        return jsonify({"status": "success", "message": f"Flag successfully given to player {target_id}"})
+    
     else:
         return jsonify({"status": "error", "message": f"Unknown command: {cmd}. Use /help to see available commands."})

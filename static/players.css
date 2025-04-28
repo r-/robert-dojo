@@ -6,7 +6,7 @@
 
 .table-header, .table-row {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(8, 1fr);
     gap: 0.5rem;
     align-items: center;
 }
@@ -59,3 +59,11 @@
 .blue-team-button:hover { background-color: #2980b9; }
 .red-team-button:hover { background-color: #c0392b; }
 .kick-button:hover { background-color: #333; }
+
+.team-blue {
+    background-color: #A0C8FF;
+}
+
+.team-red {
+    background-color: #FFB3B3;
+}

@@ -1,3 +1,47 @@
+async function debugGiveFlag() {
+    try {
+        // Step 1: Fetch current players
+        const gameDataResponse = await fetch('/get_game_data');
+        const gameData = await gameDataResponse.json();
+
+        const players = gameData.players;
+        const playerIds = Object.keys(players);
+
+        if (playerIds.length === 0) {
+            console.error('No players available to give a flag.');
+            return;
+        }
+
+        // Step 2: Pick a random player to give the flag
+        const randomIndex = Math.floor(Math.random() * playerIds.length);
+        const targetId = playerIds[randomIndex];
+
+        console.log(`Randomly selected player to receive the flag: ${targetId}`);
+
+        // Step 3: Send the command to the server to give the flag
+        const flagResponse = await fetch('/command', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                command: `take_flag ${targetId}`
+            })
+        });
+
+        const flagResult = await flagResponse.json();
+        console.log('Server response:', flagResult);
+
+        if (!flagResponse.ok) {
+            console.error('Failed to give flag:', flagResult.message);
+        } else {
+            console.log(`Flag successfully given to player ${targetId}`);
+        }
+    } catch (error) {
+        console.error('Error during debugGiveFlag:', error);
+    }
+}
+
 async function debugAttack() {
     try {
         // Step 1: Fetch current players

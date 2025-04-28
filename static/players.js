@@ -20,17 +20,23 @@ function kickPlayer(playerId) {
         console.error('Error kicking player:', error);
     });
 }
+function createPlayerItem(player) {
+    let teamClass = 'default-team'; // Default class
+    if (player.team === 'Blue') {
+        teamClass = 'team-blue'; // Muted blue team
+    } else if (player.team === 'Red') {
+        teamClass = 'team-red'; // Muted red team
+    }
 
-function createPlayerItem(player)
-{
     return `
-     <li class="table-row" data-player-id="${player.id}">
+     <li class="table-row ${teamClass}" data-player-id="${player.id}">
         <div>${player.id}</div>
         <div>${player.ip}</div>
         <div>${player.health}</div>
         <div>${player.score}</div>
         <div>${player.deaths}</div>
         <div>${player.team}</div>
+        <div>${player.flag}</div>
         <div class="player-actions">
             <button class="blue-team-button" onclick="newTeam('${player.id}', 'Blue')">Blue</button>
             <button class="red-team-button" onclick="newTeam('${player.id}', 'Red')">Red</button>
@@ -39,7 +45,6 @@ function createPlayerItem(player)
     </li>
 `;
 }
-
 
 // Function to make player join a team
 function newTeam(playerId, team) {
@@ -54,7 +59,7 @@ function newTeam(playerId, team) {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            alert(`Player ${playerId} has joined the ${team} team!`);
+            //alert(`Player ${playerId} has joined the ${team} team!`);
             updateGameData(); // Refresh player list
         } else {
             alert(`Failed to assign team: ${data.message}`);
