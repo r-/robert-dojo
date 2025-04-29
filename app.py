@@ -31,6 +31,7 @@ score = {
     "0": 0,
     "1": 0
 }
+app.config['SCORE'] = score
 
 
 def get_server_ip():

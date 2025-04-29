@@ -45,6 +45,7 @@ def update_health(player_id):
 def command():
     players = current_app.config['PLAYERS']
     logs = current_app.config['LOGS']
+    score = current_app.config['SCORE']
 
     print("Command recieved")
     if request.method == 'OPTIONS':
@@ -146,7 +147,7 @@ def command():
         print(args) #Debuging
 
         if len(args) != 2:
-            print("Error: attack command requires exactly 1 argument")  # Debugging
+            print("Error: attack command requires exactly 2 argument")  # Debugging
             return jsonify({"status": "error", "message": "Usage: attack <player_id>"}), 400
            
         target_id = args[0]
@@ -161,6 +162,34 @@ def command():
         if not attacking_player_id:
             print(f"Error: No player found with IP {attacker_ip}")  # Debugging
             return jsonify({"status": "error", "message": f"Player with IP {attacker_ip} not found."}), 404
+        
+        if target_id == 0:
+            match players[attacking_player_id]["team"]:
+                case 0:
+                    if players[attacking_player_id]["flag"]:
+                        players[attacking_player_id]["flag"] = False
+                        score[0] += 1
+                    players[attacking_player_id]["health"] = 4
+                    logs.append(f"Player {attacking_player_id} scored a point for Blue team")
+                    return jsonify({"status": "success", "message": f"You scored"})
+
+                case 1:
+                    return takeFlag(attacking_player_id)
+        
+        if target_id == 1:
+            match players[attacking_player_id]["team"]:
+                case 1:
+                    if players[attacking_player_id]["flag"]:
+                        players[attacking_player_id]["flag"] = False
+                        score[1] += 1
+                    players[attacking_player_id]["health"] = 4
+                    logs.append(f"Player {attacking_player_id} scored a point for Blue team")
+                    return jsonify({"status": "success", "message": f"You scored"})
+
+                case 0:
+                    return takeFlag(attacking_player_id)
+
+
     
         if target_id not in players:
             return jsonify({"status": "error", "message": f"Player '{target_id}' not found."}), 404
@@ -189,21 +218,34 @@ def command():
             return jsonify({"status": "error", "message": "Usage: give_flag <player_id>"}), 400
 
         target_id = args[0]
+        return takeFlag(target_id)
 
-        # Check if player exists
-        if target_id not in players:
-            return jsonify({"status": "error", "message": f"Player '{target_id}' not found."}), 404
-
-        # Check if the player already has the flag
-        if players[target_id].get("flag", False):
-            return jsonify({"status": "error", "message": f"Player '{target_id}' already has the flag."}), 400
-
-        # Give the flag to the player
-        players[target_id]["flag"] = True  # Assuming you set a flag attribute for the player
-        logs.append(f"Player {target_id} has taken the flag!")
-
-        # Return success message
-        return jsonify({"status": "success", "message": f"Flag successfully given to player {target_id}"})
+        
     
     else:
         return jsonify({"status": "error", "message": f"Unknown command: {cmd}. Use /help to see available commands."})
+
+def takeFlag(attacker_id):
+    players = current_app.config['PLAYERS']
+    logs = current_app.config['LOGS']
+    # Check if player exists
+    if attacker_id not in players:
+        return jsonify({"status": "error", "message": f"Player '{attacker_id}' not found."}), 404
+    
+    for id, data in players.items():
+        if data["flag"] and data["team"] == players[attacker_id]["team"]:
+            return jsonify({"status": "error", "message": f"Player {id} on your team already has the flag. "}), 400
+    
+    if players[attacker_id]["health"] <= 0:
+        return jsonify({"status": "error", "message": "You are dead, go respawn. "})
+
+    # Check if the player already has the flag
+    if players[attacker_id].get("flag", False):
+        return jsonify({"status": "error", "message": f"Player '{attacker_id}' already has the flag."}), 400
+
+    # Give the flag to the player
+    players[attacker_id]["flag"] = True  # Assuming you set a flag attribute for the player
+    logs.append(f"Player {attacker_id} has taken the flag!")
+
+    # Return success message
+    return jsonify({"status": "success", "message": f"Flag successfully given to player {attacker_id}"})
