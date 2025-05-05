@@ -38,8 +38,8 @@ function createPlayerItem(player) {
         <div>${player.team}</div>
         <div>${player.flag}</div>
         <div class="player-actions">
-            <button class="blue-team-button" onclick="newTeam('${player.id}', 'Blue')">Blue</button>
-            <button class="red-team-button" onclick="newTeam('${player.id}', 'Red')">Red</button>
+            <button class="blue-team-button" onclick="newTeam('${player.id}', 0)">Blue, 0</button>
+            <button class="red-team-button" onclick="newTeam('${player.id}', 1)">Red, 1</button>
             <button class="kick-button" onclick="kickPlayer('${player.id}')">Kick</button>
         </div>
     </li>
@@ -51,6 +51,8 @@ function newTeam(playerId, team) {
     const formData = new FormData();
     formData.append('player_id', playerId);
     formData.append('player_team', team);
+
+    console.log(team)
 
     fetch('/newTeam', {
         method: 'POST',

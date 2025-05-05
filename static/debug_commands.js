@@ -14,9 +14,11 @@ async function debugGiveFlag() {
 
         // Step 2: Pick a random player to give the flag
         const randomIndex = Math.floor(Math.random() * playerIds.length);
-        const targetId = playerIds[randomIndex];
+        const playerId = playerIds[randomIndex];
 
-        console.log(`Randomly selected player to receive the flag: ${targetId}`);
+        console.log(`Randomly selected player to receive the flag: ${playerId}`);
+
+
 
         // Step 3: Send the command to the server to give the flag
         const flagResponse = await fetch('/command', {
@@ -25,7 +27,7 @@ async function debugGiveFlag() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                command: `take_flag ${targetId}`
+                command: `attack ${1 - players[playerId]["team"]} ${players[playerId]["ip"]}`
             })
         });
 
@@ -35,7 +37,7 @@ async function debugGiveFlag() {
         if (!flagResponse.ok) {
             console.error('Failed to give flag:', flagResult.message);
         } else {
-            console.log(`Flag successfully given to player ${targetId}`);
+            console.log(`Flag successfully given to player ${playerId}`);
         }
     } catch (error) {
         console.error('Error during debugGiveFlag:', error);

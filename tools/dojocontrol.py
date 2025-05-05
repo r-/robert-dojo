@@ -35,7 +35,7 @@ def new_team():
     if player_id not in players:
         return jsonify({"status": "error", "message": f"Player {player_id} not found."}), 404
 
-    if team not in ["Blue", "Red"]:  # Set teams here
+    if team not in ['0', '1']:  # Set teams here
         return jsonify({"status": "error", "message": f"Invalid team '{team}'."}), 400
 
     players[player_id]["team"] = team

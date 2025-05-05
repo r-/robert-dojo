@@ -163,9 +163,11 @@ def command():
             print(f"Error: No player found with IP {attacker_ip}")  # Debugging
             return jsonify({"status": "error", "message": f"Player with IP {attacker_ip} not found."}), 404
         
-        if target_id == 0:
+        print(attacking_player_id)
+        
+        if target_id == "0":
             match players[attacking_player_id]["team"]:
-                case 0:
+                case "0":
                     if players[attacking_player_id]["flag"]:
                         players[attacking_player_id]["flag"] = False
                         score[0] += 1
@@ -173,12 +175,16 @@ def command():
                     logs.append(f"Player {attacking_player_id} scored a point for Blue team")
                     return jsonify({"status": "success", "message": f"You scored"})
 
-                case 1:
+                case "1":
                     return takeFlag(attacking_player_id)
+                
+                case None:
+                    players[attacking_player_id]["health"] = 4
+                    return jsonify({"status": "error", "message": f"Player {attacking_player_id} is not in a team."})
         
-        if target_id == 1:
+        if target_id == "1":
             match players[attacking_player_id]["team"]:
-                case 1:
+                case "1":
                     if players[attacking_player_id]["flag"]:
                         players[attacking_player_id]["flag"] = False
                         score[1] += 1
@@ -186,12 +192,17 @@ def command():
                     logs.append(f"Player {attacking_player_id} scored a point for Blue team")
                     return jsonify({"status": "success", "message": f"You scored"})
 
-                case 0:
+                case "0":
                     return takeFlag(attacking_player_id)
+                
+                case None:
+                    players[attacking_player_id]["health"] = 4
+                    return jsonify({"status": "error", "message": f"Player {attacking_player_id} is not in a team."})
 
 
     
         if target_id not in players:
+            print("hoho")
             return jsonify({"status": "error", "message": f"Player '{target_id}' not found."}), 404
 
          # Reduce health
@@ -202,6 +213,7 @@ def command():
             # Check if player is eliminated
             if players[target_id]["health"] <= 0:
                 logs.append(f"Player {target_id} has been eliminated!")
+                players[target_id]["flag"] = False
                 #del players[target_id]  # Remove the player from the game
                 #players[target_id]["health"] = 10 # temp - reset health
 
@@ -229,9 +241,12 @@ def takeFlag(attacker_id):
     players = current_app.config['PLAYERS']
     logs = current_app.config['LOGS']
     # Check if player exists
+    print(attacker_id)
+
     if attacker_id not in players:
+        print("haha")
         return jsonify({"status": "error", "message": f"Player '{attacker_id}' not found."}), 404
-    
+        
     for id, data in players.items():
         if data["flag"] and data["team"] == players[attacker_id]["team"]:
             return jsonify({"status": "error", "message": f"Player {id} on your team already has the flag. "}), 400
