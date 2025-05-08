@@ -176,6 +176,8 @@ def command():
                     return jsonify({"status": "success", "message": f"You scored"})
 
                 case "1":
+                    if players[attacking_player_id]["health"] <= 0:
+                        return jsonify({"status": "error", "message": f"You are dead"})
                     return takeFlag(attacking_player_id)
                 
                 case None:
@@ -193,6 +195,8 @@ def command():
                     return jsonify({"status": "success", "message": f"You scored"})
 
                 case "0":
+                    if players[attacking_player_id]["health"] <= 0:
+                        return jsonify({"status": "error", "message": f"You are dead"})
                     return takeFlag(attacking_player_id)
                 
                 case None:
@@ -204,6 +208,9 @@ def command():
         if target_id not in players:
             print("hoho")
             return jsonify({"status": "error", "message": f"Player '{target_id}' not found."}), 404
+        
+        if players[attacking_player_id]["health"] <= 0:
+            return jsonify({"status": "error", "message": f"You are dead"})
 
          # Reduce health
         if players[target_id]["health"] > 0:
