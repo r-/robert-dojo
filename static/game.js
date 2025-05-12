@@ -6,6 +6,11 @@ async function updateGameData() {
 
         const playersList = document.getElementById('players-list');
         const logsContainer = document.getElementById('logs-container');
+        const redScore = document.getElementById('red-score');
+        const blueScore = document.getElementById('blue-score');
+
+        redScore.innerHTML = `Red Score: ${data.score["1"]}`
+        blueScore.innerHTML = `Blue Score: ${data.score["0"]}`
 
         // Update Players List
         playersList.innerHTML = data.players && Object.keys(data.players).length

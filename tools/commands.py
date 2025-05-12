@@ -168,11 +168,13 @@ def command():
         if target_id == "0":
             match players[attacking_player_id]["team"]:
                 case "0":
-                    if players[attacking_player_id]["flag"]:
+                    if players[attacking_player_id]["flag"] == True:
                         players[attacking_player_id]["flag"] = False
-                        score[0] += 1
+                        score["0"] += 1
+                        logs.append(f"Player {attacking_player_id} scored a point for Blue team")
                     players[attacking_player_id]["health"] = 4
-                    logs.append(f"Player {attacking_player_id} scored a point for Blue team")
+                    update_health(attacking_player_id)
+                    
                     return jsonify({"status": "success", "message": f"You scored"})
 
                 case "1":
@@ -187,11 +189,13 @@ def command():
         if target_id == "1":
             match players[attacking_player_id]["team"]:
                 case "1":
-                    if players[attacking_player_id]["flag"]:
+                    if players[attacking_player_id]["flag"] == True:
                         players[attacking_player_id]["flag"] = False
-                        score[1] += 1
+                        score["1"] += 1
+                        logs.append(f"Player {attacking_player_id} scored a point for Blue team")
                     players[attacking_player_id]["health"] = 4
-                    logs.append(f"Player {attacking_player_id} scored a point for Blue team")
+                    update_health(attacking_player_id)
+                    
                     return jsonify({"status": "success", "message": f"You scored"})
 
                 case "0":
