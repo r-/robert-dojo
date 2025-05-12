@@ -1,12 +1,9 @@
 import cv2
 import numpy as np
 from io import BytesIO
-from PIL import Image, ImageDraw, ImageFont
 from flask import Flask, send_file, jsonify, Blueprint, request, current_app
 import cv2.aruco as aruco
 from io import BytesIO
-import hashlib
-from pyzbar.pyzbar import decode
 
 qrcode_bp = Blueprint('qrcode_bp', __name__)
 

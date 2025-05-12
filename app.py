@@ -1,8 +1,6 @@
 import socket
 from flask import Flask, jsonify, request, render_template, send_file, Blueprint
 from flask_cors import CORS
-from PIL import Image
-from pyzbar.pyzbar import decode
 import threading
 import requests
 
