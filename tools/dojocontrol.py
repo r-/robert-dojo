@@ -43,3 +43,21 @@ def new_team():
     logs.append(f"Player {player_id} joined {team}.")
 
     return jsonify({"status": "success", "message": f"Player {player_id} has successfully joined the {team} team!"})
+
+@dojocontrol_bp.route('/restart', methods=['POST'])
+def restart():
+    players = current_app.config['PLAYERS']
+    logs = current_app.config['LOGS']
+    score = current_app.config["SCORE"]
+
+    for player_id, player_info in players.items():
+        players[player_id]["health"] = 4
+        players[player_id]["flag"] = False
+        players[player_id]["deaths"] = 0
+        players[player_id]["score"] = 0
+
+    score["0"] = 0
+    score["1"] = 0
+
+    logs.append(f"Game has been reset.")
+    return jsonify({"status": "success", "message": "Reset successful."})

@@ -221,6 +221,8 @@ def command():
             if players[target_id]["health"] <= 0:
                 logs.append(f"Player {target_id} has been eliminated!")
                 players[target_id]["flag"] = False
+                players[target_id]["deaths"] += 1
+                players[attacking_player_id]["score"] += 1
                 #del players[target_id]  # Remove the player from the game
                 #players[target_id]["health"] = 10 # temp - reset health
 
