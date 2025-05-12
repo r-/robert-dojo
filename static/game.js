@@ -29,3 +29,25 @@ setInterval(updateGameData, 1000);
 function createLogEntry(log) {
     return `<p class="log-entry">${log}</p>`;
 }
+
+function reset()
+{
+
+    fetch('/restart', {
+        method: 'POST',
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            //alert(`Player ${playerId} has joined the ${team} team!`);
+            updateGameData(); // Refresh player list
+        } else {
+            alert(`Failed to assign team: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error changing team:', error);
+        alert('Error changing team. Please try again.');
+    });    
+}
+
